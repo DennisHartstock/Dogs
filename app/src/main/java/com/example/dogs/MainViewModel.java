@@ -30,6 +30,7 @@ public class MainViewModel extends AndroidViewModel {
     public static final String TAG = "MainViewModel";
 
     private final MutableLiveData<DogImage> dogImageMutableLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
 
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -41,13 +42,24 @@ public class MainViewModel extends AndroidViewModel {
         return dogImageMutableLiveData;
     }
 
+    public LiveData<Boolean> getIsLoading() {
+        return isLoading;
+    }
+
     public void loadDogImage() {
+        isLoading.setValue(true);
         Disposable disposable = loadDogImageRx()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        dogImageMutableLiveData::setValue,
-                        throwable -> Log.d(TAG, "Error: " + throwable.getMessage())
+                        value -> {
+                            isLoading.setValue(false);
+                            dogImageMutableLiveData.setValue(value);
+                        },
+                        throwable -> {
+                            isLoading.setValue(false);
+                            Log.d(TAG, "Error: " + throwable.getMessage());
+                        }
                 );
         compositeDisposable.add(disposable);
     }
