@@ -1,7 +1,6 @@
 package com.example.dogs;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -27,10 +26,10 @@ public class MainViewModel extends AndroidViewModel {
     public static final String BASE_URL = "https://dog.ceo/api/breeds/image/random";
     public static final String KEY_MESSAGE = "message";
     public static final String KEY_STATUS = "status";
-    public static final String TAG = "MainViewModel";
 
     private final MutableLiveData<DogImage> dogImageMutableLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isError = new MutableLiveData<>();
 
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -46,15 +45,19 @@ public class MainViewModel extends AndroidViewModel {
         return isLoading;
     }
 
+    public LiveData<Boolean> getIsError() {
+        return isError;
+    }
+
     public void loadDogImage() {
         Disposable disposable = loadDogImageRx()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(disposable1 -> isLoading.setValue(true))
+                .doOnError(throwable -> isError.setValue(true))
                 .doAfterTerminate(() -> isLoading.setValue(false))
                 .subscribe(
-                        dogImageMutableLiveData::setValue,
-                        throwable -> Log.d(TAG, "Error: " + throwable.getMessage())
+                        dogImageMutableLiveData::setValue
                 );
         compositeDisposable.add(disposable);
     }

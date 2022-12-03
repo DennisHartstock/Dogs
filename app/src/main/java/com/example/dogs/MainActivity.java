@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         viewModel.loadDogImage();
+
         viewModel.getIsLoading().observe(this, loading -> {
             if (loading) {
                 pbLoadImage.setVisibility(View.VISIBLE);
@@ -34,6 +36,15 @@ public class MainActivity extends AppCompatActivity {
                 pbLoadImage.setVisibility(View.GONE);
             }
         });
+
+        viewModel.getIsError().observe(this, error -> {
+            if (error) {
+                Toast.makeText(MainActivity.this,
+                        R.string.toast_error,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
         viewModel.getDogImageMutableLiveData().observe(
                 this,
                 dogImage -> Glide.with(MainActivity.this)
