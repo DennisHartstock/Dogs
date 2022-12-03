@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Dogs</string>
+    <string name="bt_next_image">next image</string>
 </resources>

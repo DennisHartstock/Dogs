@@ -1,14 +1,22 @@
 package com.example.dogs;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
+
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MainActivity";
+
+    private ImageView ivDogImage;
+    private ProgressBar pbLoadImage;
+    private Button btNextImage;
 
     private MainViewModel viewModel;
 
@@ -16,11 +24,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initViews();
+
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         viewModel.loadDogImage();
         viewModel.getDogImageMutableLiveData().observe(
                 this,
-                dogImage -> Log.d(TAG, dogImage.toString())
-        );
+                dogImage -> Glide.with(MainActivity.this)
+                        .load(dogImage.getMessage())
+                        .into(ivDogImage));
+    }
+
+    private void initViews() {
+        ivDogImage = findViewById(R.id.ivDogImage);
+        pbLoadImage = findViewById(R.id.pbLoadImage);
+        btNextImage = findViewById(R.id.btNextImage);
     }
 }
