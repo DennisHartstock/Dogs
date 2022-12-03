@@ -47,19 +47,14 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void loadDogImage() {
-        isLoading.setValue(true);
         Disposable disposable = loadDogImageRx()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(disposable1 -> isLoading.setValue(true))
+                .doAfterTerminate(() -> isLoading.setValue(false))
                 .subscribe(
-                        value -> {
-                            isLoading.setValue(false);
-                            dogImageMutableLiveData.setValue(value);
-                        },
-                        throwable -> {
-                            isLoading.setValue(false);
-                            Log.d(TAG, "Error: " + throwable.getMessage());
-                        }
+                        dogImageMutableLiveData::setValue,
+                        throwable -> Log.d(TAG, "Error: " + throwable.getMessage())
                 );
         compositeDisposable.add(disposable);
     }
